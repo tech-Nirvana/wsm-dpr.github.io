@@ -1,0 +1,1463 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Raleway|Space+Mono|Muli"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css"
+    />
+    <script src="header.js" type="text/javascript" defer></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <title>Display CWSN Visit</title>
+  </head>
+  <style>
+    html {
+      box-sizing: border-box;
+      font-family: "Muli", Verdana, sans-serif;
+      font-size: 1em;
+    }
+
+    *,
+    *::after,
+    *::before {
+      box-sizing: inherit;
+    }
+
+    :root {
+      --bg: #fb5607;
+      --dropIcon: "\f107";
+    }
+
+    body {
+      margin: 0;
+      background-color: #fdfcdc;
+    }
+
+    #loader {
+      border: 8px solid transparent;
+      border-radius: 50%;
+      border-top: 8px solid var(--bg);
+      border-bottom: 8px solid var(--bg);
+      width: 70px;
+      height: 70px;
+      animation: spin 1s linear infinite;
+      z-index: 3;
+    }
+
+    #popup {
+      width: 380px;
+      height: 180px;
+      box-shadow: 0px 4px 16px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 5px;
+      padding: 2px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      display: none;
+    }
+
+    @keyframes spin {
+      100% {
+        transform: rotate(360deg);
+      }
+    }
+
+    .center {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      margin: auto;
+    }
+
+    #reports {
+      position: relative;
+      display: none;
+    }
+
+    td,
+    th {
+      border: 1px solid rgba(100, 100, 100, 0.3);
+    }
+
+    #reportTable {
+      border-collapse: collapse;
+      margin: auto;
+      color: black;
+    }
+
+    #home {
+      width: 100%;
+      height: calc(100vh - 40px);
+    }
+
+    header {
+      background-color: var(--bg);
+      width: 100vw;
+      height: 40px;
+      position: fixed;
+      top: 0;
+      right: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    header #header {
+      float: left;
+      width: calc(100vw - 34px);
+    }
+
+    p#heading {
+      text-align: center;
+      color: rgb(236, 238, 245);
+      margin: 0;
+      padding: 10px 0;
+      cursor: pointer;
+      font-family: "Raleway", sans-serif;
+      font-weight: bold;
+    }
+
+    header #menu {
+      float: right;
+      width: 24px;
+      height: 24px;
+      margin: 8px 10px 8px 0;
+    }
+
+    #menu .material-icons {
+      /*margin: 8px 0;*/
+      color: rgb(236, 238, 245);
+      cursor: pointer;
+    }
+
+    #dropdown {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    #dropdown li {
+      height: 24px;
+      position: relative;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    #dropdown i + ul li {
+      height: 100%;
+      padding: 0px;
+    }
+
+    #dropdown ul#dropdownContent {
+      position: absolute;
+      right: 0;
+      top: 100%;
+    }
+
+    #dropdown li ul {
+      display: none;
+      list-style-type: none;
+      margin: 0;
+      padding: 0;
+      line-height: normal;
+      color: #ffffff;
+      background-color: var(--bg);
+      box-shadow: 0px 4px 16px 8px rgba(0, 0, 0, 0.2);
+      text-align: left;
+    }
+
+    .drop-content {
+      display: inline-block;
+      width: 120px;
+      padding: 8px;
+      border-bottom: 1px solid rgba(200, 200, 200, 0.3);
+    }
+
+    .sub-content::after {
+      font-family: "Material Icons";
+      content: "\e5e1";
+      float: right;
+    }
+
+    main {
+      position: absolute;
+      top: 40px;
+      left: 0;
+      right: 0;
+      font-size: 0.95rem;
+    }
+
+    #form-shortcut {
+      border-radius: 50%;
+      position: fixed;
+      bottom: 10px;
+      right: 10px;
+    }
+
+    #form-shortcut .material-icons {
+      color: var(--bg);
+      font-size: 40px;
+      cursor: pointer;
+    }
+
+    #entry-form,
+    #reports {
+      overflow: auto;
+    }
+
+    #attendance-form {
+      margin: auto;
+      font-family: Raleway;
+      padding: 5px;
+      max-width: 800px;
+      min-width: 200px;
+    }
+
+    #attendance-form h3 {
+      text-align: center;
+      margin: auto auto 10px;
+      border-bottom: 1px solid rgba(100, 100, 100, 0.3);
+    }
+
+    input[type="text"],
+    input[type="date"],
+    .desg,
+    select,
+    input[type="time"] {
+      padding: 10px;
+      width: 100%;
+      font-family: Raleway;
+      border: 1px solid #aaaaaa;
+      border-radius: 4px;
+      resize: vertical;
+      background-color: white;
+    }
+
+    .radiolabel {
+      display: block;
+    }
+
+    .tab {
+      display: none;
+    }
+
+    button {
+      background-color: var(--bg);
+      color: #ffffff;
+      border: none;
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-family: Raleway;
+      cursor: pointer;
+    }
+
+    button:hover {
+      opacity: 0.8;
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Make circles that indicate the steps of the form: */
+    .step {
+      height: 15px;
+      width: 15px;
+      margin: 0 2px;
+      background-color: #bbbbbb;
+      border: none;
+      border-radius: 50%;
+      display: inline-block;
+      opacity: 0.5;
+    }
+
+    .step.active {
+      opacity: 1;
+    }
+
+    /* Mark the steps that are finished and valid: */
+    .step.finish {
+      background-color: var(--bg);
+    }
+
+    /* Style the label to display next to the inputs */
+    .que {
+      padding: 12px 12px 12px 0;
+      display: inline-block;
+    }
+
+    /* Floating column for labels: 25% width */
+    .col-25 {
+      float: left;
+      width: 25%;
+      margin-top: 6px;
+    }
+
+    /* Floating column for inputs: 75% width */
+    .col-75 {
+      float: left;
+      width: 75%;
+      margin-top: 6px;
+    }
+
+    /* Clear floats after the columns */
+    .row:after {
+      content: "";
+      display: table;
+      clear: both;
+    }
+
+    .addAnotherRecord {
+      float: left;
+      margin-top: 10px;
+    }
+
+    /* Responsive layout - when the screen is less than 600px wide, make the two columns stack on top of each other instead of next to each other */
+    @media screen and (max-width: 600px) {
+      .col-25,
+      .col-75,
+      input[type="submit"] {
+        width: 100%;
+        margin-top: 0;
+      }
+
+      header,
+      main {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media screen and (max-width: 292px) {
+      header,
+      main,
+      div,
+      select,
+      input,
+      label {
+        font-size: 0.7rem;
+      }
+    }
+
+    #login-box {
+      max-width: 400px;
+      width: min(400px, 96vw);
+      background-image: url("cwsnImageLoginBanner.webp");
+      background-color: white;
+      background-size: contain;
+      background-repeat: no-repeat;
+      box-shadow: 0px 4px 16px 8px rgba(0, 0, 0, 0.2);
+      padding-bottom: 10px;
+      border-radius: 5px;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+    }
+
+    #login-box h3 {
+      margin-bottom: 36%;
+      margin-top: 0;
+      padding: 4% 0;
+      color: var(--bg);
+    }
+
+    #login-banner {
+      width: 100%;
+      background-color: #aaaaaa;
+    }
+
+    #login-banner img {
+      max-width: 100%;
+    }
+
+    #login-form {
+      margin: 0 20px;
+    }
+    #login-form select {
+      margin-bottom: 10px;
+    }
+
+    #login-form #continue {
+      padding: 10px;
+      margin-bottom: 40%;
+    }
+
+    button#continue {
+      width: 100%;
+      cursor: pointer;
+    }
+    #login-box-outer {
+      position: relative;
+      height: 100vh;
+    }
+
+    #homepage, #entrypage {
+      display: none;
+    }
+  </style>
+
+  <body>
+    <div id="loader" class="center"></div>
+
+    <div id="popup">
+      <h1></h1>
+      <p id="msg"></p>
+      <button>Ok</button>
+    </div>
+
+    <div id="login-box-outer">
+      <div id="login-box">
+        <h3 style="text-align: center">CWSN Management System</h3>
+        <div id="login-form">
+          <select name="block" id="block" required>
+            <option value="" selected>Block Name...</option>
+          </select>
+          <select name="designation" id="designation" required>
+            <option value="" selected>Designation...</option>
+          </select>
+          <select name="name" id="name">
+            <option value="" selected>Name...</option>
+          </select>
+          <button id="continue">Continue</button>
+        </div>
+      </div>
+    </div>
+
+    <div id="homepage">
+      <header-component></header-component>
+
+      <div id="dashboard">
+        <div id="form-shortcut">
+          <i class="material-icons">add_circle</i>
+        </div>
+      </div>
+    </div>
+    
+    <div id="entrypage">
+      <header-component></header-component>
+      <div id="entry-form">
+        <form
+          id="attendance-form"
+          method="post"
+          action="https://script.google.com/macros/s/AKfycbyArxMeP7wIzpAuJ3FRlOHcKY15tPlX0fY4g66h9dMlh9jmJw4EwiVxRBJa7Dq0KmGd1A/exec"
+        >
+          <h3>Daily performace reporting:</h3>
+          <!-- One "tab" for each step in the form:-->
+          <div class="tab">
+            <span>Visited schools detail:</span>
+            <div class="row">
+              <div class="col-25">
+                <label for="cluster" class="que">Cluster</label>
+              </div>
+              <div class="col-75">
+                <select
+                  id="cluster"
+                  name="CLUSTER"
+                  oninput="this.className = ''"
+                  required
+                >
+                  <option value="" selected>Cluster Name...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="school" class="que">School</label>
+              </div>
+              <div class="col-75">
+                <select
+                  id="school"
+                  name="SCHOOL"
+                  oninput="this.className = ''"
+                  required
+                >
+                  <option value="" selected>School Name...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="visitTime" class="que">Visiting Time</label>
+              </div>
+              <div class="col-75">
+                <input type="time" id="visitTime" name="VISIT-TIME" />
+              </div>
+            </div>
+            <button class="addAnotherRecord">Add</button>
+          </div>
+
+          <div class="tab">
+            Details of beneficiary CwSN:
+            <div class="row">
+              <div class="col-25">
+                <label for="cwsnName" class="que">Name of CWSN</label>
+              </div>
+              <div class="col-75">
+                <input
+                  type="text"
+                  id="cwsnName"
+                  name="CWSN"
+                  placeholder="Name of CwSN..."
+                  oninput="this.className = ''"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="studentId" class="que">Roll number</label>
+              </div>
+              <div class="col-75">
+                <input
+                  type="text"
+                  id="studentId"
+                  name="CWSN"
+                  placeholder="10 digit student ID..."
+                  oninput="this.className = ''"
+                  required
+                />
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="disablity" class="que">Disability</label>
+              </div>
+              <div class="col-75">
+                <select
+                  id="disablity"
+                  name="DISABLITY"
+                  oninput="this.className = ''"
+                  required
+                >
+                  <option value="" selected>disability type...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="class" class="que">Class</label>
+              </div>
+              <div class="col-75">
+                <select
+                  id="class"
+                  name="CLASS"
+                  oninput="this.className = ''"
+                  required
+                >
+                  <option value="" selected>Class...</option>
+                  <option value="kg">KG</option>
+                  <option value="i">I</option>
+                  <option value="ii">II</option>
+                  <option value="iii">III</option>
+                  <option value="iv">IV</option>
+                  <option value="v">V</option>
+                  <option value="vi">VI</option>
+                  <option value="vii">VII</option>
+                  <option value="viii">VIII</option>
+                  <option value="ix">IX</option>
+                  <option value="x">X</option>
+                  <option value="xi">XI</option>
+                  <option value="xii">XII</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="schCwsn" class="que">SChool</label>
+              </div>
+              <div class="col-75">
+                <select
+                  id="schCwsn"
+                  name="SCHOOL"
+                  oninput="this.className = ''"
+                  required
+                >
+                  <option value="" selected>School...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="col-25">
+                <label for="assistProvide" class="que"
+                  >Assistance provided</label
+                >
+              </div>
+              <div class="col-75">
+                <select
+                  id="assistProvide"
+                  name="ASSISTANCE PROVIDED"
+                  oninput="this.className = ''"
+                  required
+                >
+                  <option value="" selected>assistance Provided...</option>
+                  <option value="academic">Academic</option>
+                  <option value="therapy">Therapy</option>
+                </select>
+              </div>
+            </div>
+            <button class="addAnotherRecord">Add</button>
+          </div>
+
+          <div style="overflow: auto">
+            <div style="float: right; margin-top: 10px">
+              <button type="button" id="nextBtn">Next</button>
+            </div>
+          </div>
+
+          <!--Circles which indicates the steps of the form-->
+          <div style="text-align: center; margin-top: 40px">
+            <span class="step"></span>
+            <span class="step"></span>
+            <span class="step"></span>
+          </div>
+        </form>
+      </div>
+    </div>  
+
+
+    <div id="reports">
+      <p style="text-align:center">Reports</p>
+      <table id="reportTable"></table>
+    </div>
+
+    <script>
+      var rtUrl =
+        "https://script.google.com/macros/s/AKfycbw_fHDEJBeGeF2ALbFP7kzo1q0L6wKCtbNcfKQGaWeBB-nBOzDZLcbmpz7sQNemUCo/exec";
+      window.addEventListener("DOMContentLoaded", function () {
+        //fatching Resource teacher/Therapist list as JSON data from google sheet/AppScript
+        var url = rtUrl + "?action=read";
+        fetch(url)
+          .then((response) => response.json())
+          .then((data) => {
+            rtList = data;
+            populateBlock(data);
+          })
+          .then(() => {
+            $("#loader").css("display", "none");
+          })
+          .catch((er) => alert(er.message));
+      });
+
+      var userID, visitorID;
+
+      block.addEventListener("change", function () {
+        populateDesignation(rtList, this.value);
+        $("#name").children().not(":first").remove();
+      });
+
+      $("#designation").change(function () {
+        populateName(rtList, this.value);
+      });
+
+      $("#name").change(function(){
+        for(var i=0; i<rtList.length; i++){
+          if(($("#block").val()==rtList[i]["BLOCK"])&&($("#designation").val()==rtList[i]["DESIGNATION"])&&($("#name").val()==rtList[i]["NAME"])){
+            userID=rtList[i]["USER-ID"]; //this will be used to show user specific information
+            break;
+          }
+        }
+      })
+
+      $("#continue").click(function () {
+        var creds = $("#login-form select");
+        var flag = 1;
+
+        for (var i = 0; i < creds.length; i++) {
+          if (creds[i].value == "") {
+            alert("Please fill your credentials!");
+            flag = 0;
+            return false;
+          }
+        }
+
+        if (flag == 1) {
+          $("#loader").css("display", "block");
+
+          const fpPromise = import(
+            "https://openfpcdn.io/fingerprintjs/v3"
+          ).then((FingerprintJS) => FingerprintJS.load());
+
+          fpPromise
+            .then((fp) => fp.get())
+            .then((result) => result.visitorId)
+            .then((vId) => {
+              visitorID = vId;
+              console.log(visitorID);
+              console.log(userID);
+              var url =
+                rtUrl +
+                "?callback=showHomepage&id=" +
+                userID +
+                "&ip=" +
+                visitorID +
+                "&action=insert";
+
+              var request = jQuery.ajax({
+                crossDomain: true,
+                url: url,
+                method: "GET",
+                dataType: "jsonp",
+              });
+            })
+            .catch((er) => er.message);
+        }
+      });
+
+      var schUrl = 'https://script.google.com/macros/s/AKfycbz6waG92zWuAA2XghbHR5a566w-v-Zc0iVKSF1RBjiCZr2YZ26cH5e8olKsWKZZA7Q/exec';
+
+      function showHomepage(res) {
+        var authorization = false;
+        if (res.result == "success") {
+          authorization = true;
+          var url = schUrl + "?block=" + $("#block").val();
+          fetch(url)
+          .then(response=>response.json())
+          .then((data)=>{
+            schList = data;
+          }).then(()=>{
+            $("#loader").css("display", "none");
+            $("#login-box-outer").css("display", "none");
+            $("#homepage").css("display", "block");
+          });
+        }
+
+        if(!authorization){
+          $("#loader").css("display", "none");
+          alert(`Server message: ${res.result}`);
+        }
+      }
+
+      //code for home
+    var entryform = document.getElementById("form-shortcut");
+    //var menu = document.getElementById("menu");
+    var entry = document.getElementById("entry-form");
+    //var reports = document.getElementById("reports");
+
+    entryform.addEventListener("click", function () {
+      $("#homepage").css("display", "none");
+      $("#entrypage").css("display", "block");
+      //$("#drop-icon ul").css("display", "none");
+    });
+
+    var minDistance=10000000, lo;
+
+    function locationUpdate(){
+      if(navigator.geolocation){
+        navigator.geolocation.getCurrentPosition(successCallback, errorCallbak, {
+         timeout: 30000,
+         enableHighAccuracy: true,
+         maximumAge: Infinity
+     });
+      }else{
+        alert("Geolocation is not supported by your browser");
+      }
+
+      function successCallback(position){
+        var curLat = position.coords.latitude;
+        var curLong = position.coords.longitude;
+
+        var acrcy = position.coords.accuracy;
+        console.log(`accuracy: ${acrcy}`);
+
+        var time = position.timestamp;
+        time = new Date(time);
+        time = time.toLocaleTimeString();
+        console.log(`timestamp: ${time}`);
+
+        //calucate distance using Haversine formula
+        function haversineDistance(currentLat, currentLong, lat, long){
+
+          //convert degree to radian
+          Number.prototype.toRad = function(){
+            return this * Math.PI / 180;
+          }
+
+          var R = 6371000; // radius of earth in meter
+          var x1 = lat-currentLat;
+          var dLat = x1.toRad();  
+          var x2 = long-currentLong;
+          var dLong = x2.toRad();  
+          var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+                Math.cos(currentLat.toRad()) * Math.cos(lat.toRad()) * 
+                Math.sin(dLong/2) * Math.sin(dLong/2);  
+          var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+          var distance = R * c;
+          return distance;
+        }
+
+        for(var i=0; i<schList.length; i++){
+          var dist1 = haversineDistance(curLat, curLong, schList[i]["latitude"], schList[i]["longitude"]);
+          if(dist1<minDistance){
+            minDistance = dist1;
+            lo = i;
+            console.log(`SL no: ${lo} distance: ${minDistance}`);
+          }
+        }
+
+        $("#popup").css("display", "block");
+        $("#popup h1").text("Success!");
+        $("#popup p").text(`latitude: ${curLat}, longitude: ${curLong}`);
+        $("#popup button").click(function(e){
+          $(e.target).parent().css("display", "none");
+        });
+      }
+
+      function errorCallbak(error){
+        alert(`Error message: ${error.message}`);
+      }
+    }
+
+    function haversineDistance(currentLat, currentLong, lat, long){
+
+      //convert degree to radian
+      Number.prototype.toRad = function(){
+        return this * Math.PI / 180;
+      }
+
+      var R = 6371000; // radius of earth in km
+      var x1 = lat-currentLat;
+      var dLat = x1.toRad();  
+      var x2 = long-currentLong;
+      var dLong = x2.toRad();  
+      var a = Math.sin(dLat/2) * Math.sin(dLat/2) + 
+            Math.cos(currentLat.toRad()) * Math.cos(lat.toRad()) * 
+            Math.sin(dLong/2) * Math.sin(dLong/2);  
+      var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+      var distance = R * c;
+
+      console.log(distance);
+    }
+
+    $("#find-location").click(function(){
+      haversineDistance(22.529559194768126, 85.81541158505311, 22.61911, 85.84140);
+    });
+
+    
+
+      //code for entry form
+      var tabs = document.getElementsByClassName("tab");
+      var rtList = [];
+      var schList = [];
+      //var block = document.getElementById("block");
+      var desg = document.getElementsByName("desg");
+      var nme = document.getElementById("nme");
+      var month = document.getElementById("month");
+      var date = document.getElementById("date");
+      var cluster = document.getElementById("cluster");
+      var schName = document.getElementById("school");
+      var currentTab = 0;
+      var addAnotherRecord =
+        document.getElementsByClassName("addAnotherRecord");
+      var cwsnSch = document.getElementById("schCwsn");
+      var disability = document.getElementById("disablity");
+      var disablities = [
+        "Blindness",
+        "Low-vision",
+        "Leprosy Cured persons",
+        "Hearing Impairment (deaf and hard of hearing)",
+        "Locomotor Disability",
+        "Dwarfism",
+        "Intellectual Disability",
+        "Mental Illness",
+        "Autism Spectrum Disorder",
+        "Cerebral Palsy",
+        "Muscular Dystrophy",
+        "Chronic Neurological conditions",
+        "Specific Learning Disabilities",
+        "Multiple Sclerosis",
+        "Speech and Language disability",
+        "Thalassemia",
+        "Hemophilia",
+        "Sickle Cell disease",
+        "Multiple Disabilities including deafblindness",
+        "Acid Attack victim",
+        "Parkinson's disease",
+      ];
+      var cwsnName = document.getElementById("cwsnName");
+      var tempSch = [];
+      var cwsnArray = [];
+      var record = {};
+      var conditionFailed = false;
+
+      //variable declaration for CWSN report menu
+      var visitSummary = document.getElementById("visitSummary");
+      var cwsnReport = document.getElementById("cwsnReport");
+
+      showTab(currentTab);
+
+      function showTab(n) {
+        // This function will display the specified tab of the form...
+        //var x = document.getElementsByClassName("tab");
+        tabs[n].style.display = "block";
+
+        if (n == tabs.length - 1) {
+          document.getElementById("nextBtn").innerHTML = "Submit";
+          document.getElementById("nextBtn").type = "submit";
+        } else {
+          document.getElementById("nextBtn").innerHTML = "Next";
+        }
+        //... and run a function that will display the correct step indicator:
+        fixStepIndicator(n);
+      }
+
+      function nextSubmit() {
+        // This function will used to go forward or submit the form
+        var y = tabs[currentTab].querySelectorAll("input[type='text'], select");
+        var valid = true;
+
+        // Exit the function if any field in the current tab is invalid:
+        if (!validateForm()) {
+          alert("Mandatory field can't be empty.");
+          return false;
+        }
+
+        if (currentTab == 2) {
+          addCwsn();
+          record.cwsnVisit = cwsnArray;
+          $.ajax({
+            url: "https://script.google.com/macros/s/AKfycbxtq8ajYimx3phRIZ9s4sz16fqIyuagR7e9kk7sFNkl-nI-21OLiMcuXL8vUpxTPAi0wQ/exec",
+            timeout: 10000,
+            data: { Content: JSON.stringify(record) },
+            type: "POST",
+            dataType: "json",
+          })
+            .done(function (json) {
+              alert("success");
+              cwsnArray = [];
+            })
+            .fail(function (xhr, status, errorThrown) {
+              alert("Error: " + errorThrown);
+            });
+          populateBlock(rtList);
+          $("#school").children().not(":first").remove();
+        }
+
+        if (currentTab == 1) {
+          if (!addSchool()) {
+            valid = false;
+            return false;
+          }
+          populateVisitedSch();
+          populateDisablity();
+          record.visitedSchool = tempSch;
+          tempSch = [];
+        }
+
+        if (currentTab == 0) {
+          record.dateOfVisit = date.value;
+          record.visitMonth = month.value;
+          record.block = block.value;
+          desg.forEach(function (i) {
+            if (i.checked) {
+              record.designation = i.value;
+            }
+          });
+          record.empName = nme.value;
+          $("#block").children().not(":first").remove();
+          desg.forEach(function (i) {
+            i.checked = false;
+          });
+          $("#nme").children().not(":first").remove();
+        }
+
+        // Hide the current tab:
+        tabs[currentTab].style.display = "none";
+
+        if (valid) {
+          if (currentTab == 2) {
+            currentTab = 0;
+          } else {
+            currentTab = currentTab + 1;
+          }
+        }
+
+        // Otherwise, display the correct tab:
+        showTab(currentTab);
+      }
+
+      $("#nextBtn").click(function (e) {
+        if (currentTab == 2) {
+          e.preventDefault();
+        }
+        nextSubmit();
+      });
+
+      function validateForm() {
+        // This function deals with validation of the form fields
+        var x,
+          y,
+          i,
+          valid = true;
+        //x = document.getElementsByClassName("tab");
+        y = tabs[currentTab].querySelectorAll("input, select");
+        // A loop that checks every input field in the current tab:
+        for (i = 0; i < y.length; i++) {
+          // If a field is empty...
+          if (y[i].value == "") {
+            // add an "invalid" class to the field:
+            y[i].className += " invalid";
+            // and set the current valid status to false
+            valid = false;
+          }
+        }
+        // If the valid status is true, mark the step as finished and valid:
+        if (valid) {
+          document.getElementsByClassName("step")[currentTab].className +=
+            " finish";
+        }
+        return valid; // return the valid status
+      }
+
+      function fixStepIndicator(n) {
+        // This function removes the "active" class of all steps...
+        var i,
+          x = document.getElementsByClassName("step");
+        for (i = 0; i < x.length; i++) {
+          x[i].className = x[i].className.replace(" active", "");
+        }
+        //... and adds the "active" class on the current step:
+        x[n].className += " active";
+      }
+
+      function resetDesg() {
+        desg.forEach(function (i) {
+          i.checked = false;
+        });
+      }
+
+      function populateBlock(ar) {
+        var blockArray = [];
+        var arrayLength = ar.length;
+        for (var i = 0; i < arrayLength; i++) {
+          if (blockArray.indexOf(ar[i]["BLOCK"]) === -1) {
+            blockArray.push(ar[i]["BLOCK"]);
+          }
+        }
+
+        for (var j = 0; j < blockArray.length; j++) {
+          var option = document.createElement("option");
+          option.value = blockArray[j];
+          option.text = blockArray[j];
+          $("#block").append(option);
+        }
+      }
+
+      function populateDesignation(obj, blk) {
+        $("#designation").children().not(":first").remove();
+        var desgArray = [];
+        for (var i = 0; i < obj.length; i++) {
+          if (
+            obj[i]["BLOCK"].toLowerCase() === blk.toLowerCase() &&
+            desgArray.indexOf(obj[i]["DESIGNATION"]) === -1
+          ) {
+            desgArray.push(obj[i]["DESIGNATION"]);
+          }
+        }
+
+        for (var j = 0; j < desgArray.length; j++) {
+          var option = document.createElement("option");
+          option.value = desgArray[j];
+          option.text = desgArray[j];
+          $("#designation").append(option);
+        }
+      }
+
+      //Populate name of RT/Therapist on basis of block and designation in first tab
+      function populateName(obj, des) {
+        //Before populating the name first clear the previously populated dropdown(except placeholder)
+        $("#name").children().not(":first").remove();
+        for (var i = 0; i < obj.length; i++) {
+          if (
+            obj[i]["BLOCK"] == $("#block").val() &&
+            obj[i]["DESIGNATION"] == des
+          ) {
+            var option = document.createElement("option");
+            option.value = obj[i]["NAME"];
+            option.text = obj[i]["NAME"];
+            $("#name").append(option);
+          }
+        }
+      }
+
+      function populateDate() {
+        var dt = new Date();
+        var months = [
+          "JANUARY",
+          "FEBRUARY",
+          "MARCH",
+          "APRIL",
+          "MAY",
+          "JUNE",
+          "JULY",
+          "AUGUST",
+          "SEPTEMBER",
+          "OCTOBER",
+          "NOVEMBER",
+          "DECEMBER",
+        ];
+        month.value = months[dt.getMonth()] + "-" + dt.getFullYear();
+        month.value = months[dt.getMonth()] + "-" + dt.getFullYear();
+        var today = dt.toISOString().substr(0, 10);
+        date.value = today;
+      }
+
+      block.addEventListener("change", function () {
+        resetDesg();
+        $("#nme").children().not(":first").remove();
+        populateCluster(schList, this);
+      });
+
+      function populateCluster(obj, blk) {
+        $("#cluster").children().not(":first").remove();
+        var clusterArray = [];
+        for (var i = 0; i < obj.length - 1; i++) {
+          if (
+            obj[i]["BlockName"].toLowerCase() === blk.value.toLowerCase() &&
+            clusterArray.indexOf(obj[i]["ClusterName"]) === -1
+          ) {
+            clusterArray.push(obj[i]["ClusterName"]);
+          }
+        }
+
+        for (var j = 0; j < clusterArray.length; j++) {
+          var option = document.createElement("option");
+          option.value = clusterArray[j];
+          option.text = clusterArray[j];
+          cluster.appendChild(option);
+        }
+      }
+
+      cluster.addEventListener("change", function () {
+        populateSchool(this);
+      });
+
+      function populateSchool(clstr) {
+        $("#school").children().not(":first").remove();
+        var schArray = [];
+        for (var i = 0; i < schList.length - 1; i++) {
+          if (
+            schList[i]["ClusterName"] === clstr.value &&
+            schArray.indexOf(
+              schList[i]["SchName"] + "-" + schList[i]["UdiseCode"]
+            ) === -1
+          ) {
+            schArray.push(
+              schList[i]["SchName"] + "-" + schList[i]["UdiseCode"]
+            );
+          }
+        }
+
+        for (var j = 0; j < schArray.length; j++) {
+          var option = document.createElement("option");
+          option.value = schArray[j];
+          option.text = schArray[j];
+          schName.appendChild(option);
+        }
+      }
+
+      for (i of desg) {
+        i.onchange = function () {
+          populateName(this.value);
+        };
+      }
+
+      //function to save visited schools in array
+      function addSchool() {
+        if (!validateForm()) {
+          alert("Mandatory field can't be empty.");
+          return false;
+        }
+        var q = false;
+        var y = tabs[1].querySelectorAll("select, input");
+        if (tempSch.indexOf(schName.value) === -1) {
+          tempSch.push(schName.value);
+          q = true;
+        } else {
+          alert("You are adding same school twice");
+        }
+        for (j in y) {
+          y[j].value = "";
+        }
+        return q;
+      }
+
+      addAnotherRecord[0].addEventListener("click", addSchool);
+
+      //function to populate school in visited school dropdown in third tab
+      function populateVisitedSch() {
+        if ($("#schCwsn").children().length > 1) {
+          $("#schCwsn").children().not(":first").remove();
+        }
+        for (var i = 0; i < tempSch.length; i++) {
+          var option = document.createElement("option");
+          option.value = tempSch[i];
+          option.text = tempSch[i];
+          cwsnSch.appendChild(option);
+        }
+      }
+
+      function populateDisablity() {
+        for (var i = 0; i < disablities.length; i++) {
+          var option = document.createElement("option");
+          option.value = disablities[i];
+          option.text = disablities[i];
+          disability.appendChild(option);
+        }
+      }
+
+      function addCwsn() {
+        var x,
+          y,
+          i,
+          valid = true,
+          cwsnObj = {};
+        //x = document.getElementsByClassName("tab");
+        y = tabs[currentTab].querySelectorAll("input, select");
+        // A loop that checks every input field in the current tab:
+        for (i = 0; i < y.length; i++) {
+          // If a field is empty...
+          if (y[i].value == "") {
+            valid = false;
+            alert("Mandatory field can't be empty");
+            return false;
+          }
+        }
+        cwsnObj.name = cwsnName.value;
+        cwsnObj.id = document.querySelector("#studentId").value;
+        cwsnObj.disability = document.querySelector("#disablity").value;
+        cwsnObj.class = document.querySelector("#class").value;
+        cwsnObj.sch = document.querySelector("#schCwsn").value;
+        cwsnObj.assistance = document.querySelector("#assistProvide").value;
+
+        cwsnArray.push(cwsnObj);
+
+        for (j of y) {
+          j.value = "";
+        }
+      }
+      addAnotherRecord[1].addEventListener("click", addCwsn);
+
+    /*$("#cwsnReport").click(function (e) {
+      e.stopPropagation();
+      home.style.display = "none";
+      entry.style.display = "none";
+      $("#drop-icon ul").css("display", "none");
+      $("#dropdown>li").css("background-color", "unset");
+      $("#loader").css("display", "block");
+      //fetching visiting response data and display generated report
+      var url =
+        "https://script.google.com/macros/s/AKfycbxtq8ajYimx3phRIZ9s4sz16fqIyuagR7e9kk7sFNkl-nI-21OLiMcuXL8vUpxTPAi0wQ/exec";
+      fetch(url)
+        .then((response) => response.json())
+        .then(function (obj) {
+          populateCwsnWiseReport(obj);
+        })
+        .then(() => {
+          $("#loader").css("display", "none");
+        })
+        .catch((er) => alert(er.message));
+      reports.style.display = "block";
+    });
+
+    $("#visitSummary").click(function (e) {
+      e.stopPropagation();
+      home.style.display = "none";
+      entry.style.display = "none";
+      $("#drop-icon ul").css("display", "none");
+      $("#dropdown>li").css("background-color", "unset");
+      $("#loader").css("display", "block");
+      //fetching visiting response data and display generated report
+      var url =
+        "https://script.google.com/macros/s/AKfycbxtq8ajYimx3phRIZ9s4sz16fqIyuagR7e9kk7sFNkl-nI-21OLiMcuXL8vUpxTPAi0wQ/exec";
+      fetch(url)
+        .then((response) => response.json())
+        .then(function (obj) {
+          populateVisitSummary(obj);
+          //populateCwsnWiseReport(obj);
+        })
+        .then(() => {
+          $("#loader").css("display", "none");
+        })
+        .catch((er) => alert(er.message));
+      reports.style.display = "block";
+    });
+
+    //Code for CWSN visiting report
+
+    function populateVisitSummary(ar) {
+      if ($('#reportTable').children()) {
+        $('#reportTable').children().remove();
+      }
+
+      var ReportTable = document.getElementById("reportTable");
+
+      var headerRow = document.createElement("tr");
+
+      var dateHeader = document.createElement("th");
+      dateHeader.textContent = "Date of visit";
+      headerRow.appendChild(dateHeader);
+
+      var resourcePerson = document.createElement("th");
+      resourcePerson.textContent = "Name of Resource person";
+      headerRow.appendChild(resourcePerson);
+
+      var blockHeader = document.createElement("th");
+      blockHeader.textContent = "Name of block";
+      headerRow.appendChild(blockHeader);
+
+      var visitedSchHeader = document.createElement("th");
+      visitedSchHeader.textContent = "Count of visited school";
+      headerRow.appendChild(visitedSchHeader);
+
+      var cwsnCountHeader = document.createElement("th");
+      cwsnCountHeader.textContent = "Count of benefitted CWSN";
+      headerRow.appendChild(cwsnCountHeader);
+
+      reportTable.appendChild(headerRow);
+
+      var rows = ar.length;
+      for (var i = 0; i < rows; i++) {
+        var tRow = document.createElement("tr");
+
+        var date = document.createElement("td");
+        date.textContent = ar[i]["Content"]["dateOfVisit"];
+        tRow.appendChild(date);
+
+        var empName = document.createElement("td");
+        empName.textContent = ar[i]["Content"]["empName"];
+        tRow.appendChild(empName);
+
+        var block = document.createElement("td");
+        block.textContent = ar[i]["Content"]["block"];
+        tRow.appendChild(block);
+
+        var schCount = document.createElement("td");
+        schCount.textContent = ar[i]["Content"]["visitedSchool"].length;
+        tRow.appendChild(schCount);
+
+        var cwsnCount = document.createElement("td");
+        cwsnCount.textContent = ar[i]["Content"]["cwsnVisit"].length;
+        tRow.appendChild(cwsnCount);
+
+        reports.appendChild(reportTable).appendChild(tRow);
+      }
+    }
+
+    function populateCwsnWiseReport(ar) {
+      if ($('#reportTable').children()) {
+        $('#reportTable').children().remove();
+      }
+
+      var reportTable = document.getElementById("reportTable");
+
+      var headerRow = document.createElement("tr");
+
+      var slNo = document.createElement("th");
+      slNo.textContent = "Sl No";
+      headerRow.appendChild(slNo);
+
+      var dateHeader = document.createElement("th");
+      dateHeader.textContent = "Date of visit";
+      headerRow.appendChild(dateHeader);
+
+      var cwsnHeader = document.createElement("th");
+      cwsnHeader.textContent = "Name of CWSN";
+      headerRow.appendChild(cwsnHeader);
+
+      var disabilityHeader = document.createElement("th");
+      disabilityHeader.textContent = "Type of disability";
+      headerRow.appendChild(disabilityHeader);
+
+      var rollNoHeader = document.createElement("th");
+      rollNoHeader.textContent = "Roll No";
+      headerRow.appendChild(rollNoHeader);
+
+      var classHeader = document.createElement("th");
+      classHeader.textContent = "Class";
+      headerRow.appendChild(classHeader);
+
+      var schHeader = document.createElement("th");
+      schHeader.textContent = "School";
+      headerRow.appendChild(schHeader);
+
+      var blockHeader = document.createElement("th");
+      blockHeader.textContent = "Block";
+      headerRow.appendChild(blockHeader);
+
+      var visitorHeader = document.createElement("th");
+      visitorHeader.textContent = "Name of resource person";
+      headerRow.appendChild(visitorHeader);
+
+      reportTable.appendChild(headerRow);
+
+      var rows = ar.length,
+        cwsnCount;
+      var slCounter = 1;
+      for (var i = 0; i < rows; i++) {
+        cwsnCount = ar[i]["Content"]["cwsnVisit"].length;
+        for (var j = 0; j < cwsnCount; j++) {
+          var tRow = document.createElement("tr");
+
+          var sl = document.createElement("td");
+          sl.textContent = slCounter++;
+          tRow.appendChild(sl);
+
+          var date = document.createElement("td");
+          date.textContent = ar[i]["Content"]["dateOfVisit"];
+          tRow.appendChild(date);
+
+          var cwsnName = document.createElement("td");
+          cwsnName.textContent =
+            ar[i]["Content"]["cwsnVisit"][j]["name"].toUpperCase();
+          tRow.appendChild(cwsnName);
+
+          var disability = document.createElement("td");
+          disability.textContent =
+            ar[i]["Content"]["cwsnVisit"][j]["disability"].toUpperCase();
+          tRow.appendChild(disability);
+
+          var rollNo = document.createElement("td");
+          rollNo.textContent =
+            ar[i]["Content"]["cwsnVisit"][j]["id"].toUpperCase();
+          tRow.appendChild(rollNo);
+
+          var std = document.createElement("td");
+          std.textContent =
+            ar[i]["Content"]["cwsnVisit"][j]["class"].toUpperCase();
+          tRow.appendChild(std);
+
+          var sch = document.createElement("td");
+          sch.textContent = ar[i]["Content"]["cwsnVisit"][j]["sch"];
+          tRow.appendChild(sch);
+
+          var block = document.createElement("td");
+          block.textContent = ar[i]["Content"]["block"];
+          tRow.appendChild(block);
+
+          var rp = document.createElement("td");
+          rp.textContent = ar[i]["Content"]["empName"];
+          tRow.appendChild(rp);
+
+          reports.appendChild(reportTable).appendChild(tRow);
+        }
+      }
+    }*/
+    </script>
+  </body>
+</html>
