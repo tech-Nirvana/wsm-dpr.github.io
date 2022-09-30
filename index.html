@@ -698,8 +698,8 @@
             .then((result) => result.visitorId)
             .then((vId) => {
               visitorID = vId;
-              console.log(visitorID);
-              console.log(userID);
+              alert(visitorID);
+              alert(userID);
               var url =
                 rtUrl +
                 "?callback=showHomepage&id=" +
@@ -722,7 +722,6 @@
       var schUrl = 'https://script.google.com/macros/s/AKfycbz6waG92zWuAA2XghbHR5a566w-v-Zc0iVKSF1RBjiCZr2YZ26cH5e8olKsWKZZA7Q/exec';
 
       function showHomepage(res) {
-        alert("showHomepage callback initiated");
         var authorization = false;
         if (res.result == "success") {
           authorization = true;
