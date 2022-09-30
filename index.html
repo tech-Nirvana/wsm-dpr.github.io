@@ -734,7 +734,8 @@
             $("#loader").css("display", "none");
             $("#login-box-outer").css("display", "none");
             $("#homepage").css("display", "block");
-          });
+          })
+          .catch((er) => er.message);
         }
 
         if(!authorization){
