@@ -698,8 +698,8 @@
             .then((result) => result.visitorId)
             .then((vId) => {
               visitorID = vId;
-              alert(visitorID);
-              alert(userID);
+              console.log(visitorID);
+              console.log(userID);
               var url =
                 rtUrl +
                 "?callback=showHomepage&id=" +
@@ -813,7 +813,7 @@
 
         $("#popup").css("display", "block");
         $("#popup h1").text("Success!");
-        $("#popup p").text(`latitude: ${curLat}, longitude: ${curLong}`);
+        $("#popup p").text(`latitude: ${curLat}, longitude: ${curLong}. ${minDistance} meters from ${schList[lo]["school_name"]}`);
         $("#popup button").click(function(e){
           $(e.target).parent().css("display", "none");
         });
