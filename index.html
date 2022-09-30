@@ -416,7 +416,7 @@
 
     <div id="login-box-outer">
       <div id="login-box">
-        <h3 style="text-align: center">CWSN Management system</h3>
+        <h3 style="text-align: center">CWSN Management System</h3>
         <div id="login-form">
           <select name="block" id="block" required>
             <option value="" selected>Block Name...</option>
@@ -722,6 +722,7 @@
       var schUrl = 'https://script.google.com/macros/s/AKfycbz6waG92zWuAA2XghbHR5a566w-v-Zc0iVKSF1RBjiCZr2YZ26cH5e8olKsWKZZA7Q/exec';
 
       function showHomepage(res) {
+        alert("showHomepage callback initiated");
         var authorization = false;
         if (res.result == "success") {
           authorization = true;
